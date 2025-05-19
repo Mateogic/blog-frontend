@@ -5,6 +5,8 @@ import { createApp } from 'vue'
 import App from '@/App.vue'
 // 导入路由
 import router from '@/router'
+import 'animate.css';
+
 
 const app = createApp(App)
 
