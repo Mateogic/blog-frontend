@@ -1,12 +1,13 @@
 <template>
-    <div class="bg-slate-800 h-screen text-white">
-        <!-- 顶部 Logo, 指定高度为 64px, 和右边的 Header 头保持一样高 -->
+    <div class="bg-slate-800 h-screen text-white menu-container transition-all" :style="{ width: menuStore.menuWidth }">
+		<!-- 顶部 Logo, 指定高度为 64px, 和右边的 Header 头保持一样高 -->
         <div class="flex items-center justify-center h-[64px]">
-            <img src="@/assets/logo.png" class="h-[60px]">
+            <img v-if="menuStore.menuWidth == '250px'" src="@/assets/logo.png" class="h-[60px]">
+            <img v-else src="@/assets/logo.png" class="h-[60px]">
         </div>
 
 		<!-- 下方菜单 -->
-        <el-menu :default-active="defaultActive" @select="handleSelect">
+        <el-menu :default-active="defaultActive" @select="handleSelect" :collapse="isCollapse" :collapse-transition="false">
             <template v-for="(item, index) in menus" :key="index">
                 <el-menu-item :index="item.path">
                     <el-icon>
@@ -20,7 +21,14 @@
 </div>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+
+import { useMenuStore } from '@/stores/menu'
+// 引入 useMenuStore
+const menuStore = useMenuStore()
+// 是否折叠
+const isCollapse = computed(() =>  !(menuStore.menuWidth == '250px'))
+
 import { useRouter, useRoute } from 'vue-router'
 
 const route = useRoute()

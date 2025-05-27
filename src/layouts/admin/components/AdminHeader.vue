@@ -1,10 +1,11 @@
 <template>
     <!-- 设置背景色为白色、高度为 64px，padding-right 为 4， border-bottom 为 slate 200 -->
     <div class="bg-white h-[64px] flex pr-4 border-b border-slate-200">
-        <!-- 左边栏收缩、展开 -->
-        <div class="w-[42px] h-[64px] cursor-pointer flex items-center justify-center text-gray-700 hover:bg-gray-200">
+		<!-- 左边栏收缩、展开 -->
+        <div class="w-[42px] h-[64px] cursor-pointer flex items-center justify-center text-gray-700 hover:bg-gray-200" @click="handleMenuWidth">
             <el-icon>
-                <Fold />
+                <Fold v-if="menuStore.menuWidth == '250px'"/>
+                <Expand v-else />
             </el-icon>
         </div>
 
@@ -39,3 +40,16 @@
         </div>
     </div>
 </template>
+
+<script setup>
+    import { useMenuStore } from '@/stores/menu'
+
+    // 引入了菜单 store
+    const menuStore = useMenuStore()
+
+    // icon 点击事件
+    const handleMenuWidth = () => {
+        // 动态设置菜单的宽度大小
+        menuStore.handleMenuWidth()
+    }
+</script>

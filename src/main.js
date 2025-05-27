@@ -9,7 +9,8 @@ import router from '@/router'
 import '@/permission'
 import 'animate.css';
 import 'nprogress/nprogress.css'
-
+// 引入全局状态管理 Pinia
+import { createPinia } from 'pinia'
 
 const app = createApp(App)
 
@@ -20,3 +21,7 @@ app.mount('#app')
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
+
+const pinia = createPinia()
+// 应用 Pinia
+app.use(pinia)
