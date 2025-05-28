@@ -10,16 +10,16 @@ import '@/permission'
 import 'animate.css';
 import 'nprogress/nprogress.css'
 // 引入全局状态管理 Pinia
-import { createPinia } from 'pinia'
-
+import pinia from '@/stores'
 const app = createApp(App)
 
 // 1. 创建并应用 Pinia 实例
-const pinia = createPinia()
-app.use(pinia)
+// const pinia = createPinia()
+// pinia.use(piniaPluginPersistedstate)
 
 // 2. 应用路由
 app.use(router)
+app.use(pinia)
 
 // 3. 引入图标 (可以在 use Pinia 和 router 之后，mount 之前)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
