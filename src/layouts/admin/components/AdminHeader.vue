@@ -32,10 +32,11 @@
 
 			<!-- 登录用户头像 -->
             <el-dropdown class="flex items-center justify-center">
-                <span class="el-dropdown-link flex items-center justify-center text-gray-700 text-xs">
+				<span class="el-dropdown-link flex items-center justify-center text-gray-700 text-xs">
                     <!-- 头像 Avatar -->
-                    <el-avatar class="mr-2" :size="25" src="https://img.quanxiaoha.com/quanxiaoha/f97361c0429d4bb1bc276ab835843065.jpg" />
-                    Admin
+                    <el-avatar class="mr-2" :size="25"
+                        src="https://img.quanxiaoha.com/quanxiaoha/f97361c0429d4bb1bc276ab835843065.jpg" />
+                    {{ userStore.userInfo.username }}
                     <el-icon class="el-icon--right">
                         <arrow-down />
                     </el-icon>
@@ -53,7 +54,9 @@
 
 <script setup>
     import { useMenuStore } from '@/stores/menu'
-
+    import { useUserStore } from '@/stores/user'
+    // 引入了用户 Store
+    const userStore = useUserStore()
     // 引入了菜单 store
     const menuStore = useMenuStore()
 
@@ -69,4 +72,5 @@
     const { isFullscreen, toggle } = useFullscreen()
     // 刷新页面
     const handleRefresh = () => location.reload()
+
 </script>

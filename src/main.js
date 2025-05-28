@@ -14,14 +14,17 @@ import { createPinia } from 'pinia'
 
 const app = createApp(App)
 
-// 应用路由
+// 1. 创建并应用 Pinia 实例
+const pinia = createPinia()
+app.use(pinia)
+
+// 2. 应用路由
 app.use(router)
-app.mount('#app')
-// 引入图标
+
+// 3. 引入图标 (可以在 use Pinia 和 router 之后，mount 之前)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 
-const pinia = createPinia()
-// 应用 Pinia
-app.use(pinia)
+// 4. 挂载应用
+app.mount('#app')
