@@ -11,7 +11,7 @@
                 <div class="ml-3 w-30 mr-5">
                     <!-- 日期选择组件（区间选择） -->
                     <el-date-picker v-model="pickDate" type="daterange" range-separator="至" start-placeholder="开始时间"
-                        end-placeholder="结束时间" size="default" :shortcuts="shortcuts" @change="datepickerChange"/>
+                        end-placeholder="结束时间" size="default" :shortcuts="shortcuts" @change="datepickerChange" />
                 </div>
 
                 <el-button type="primary" class="ml-3" :icon="Search" @click="getTableData">查询</el-button>
@@ -33,44 +33,46 @@
             <el-table :data="tableData" border stripe style="width: 100%">
                 <el-table-column prop="name" label="分类名称" width="180" />
                 <el-table-column prop="createTime" label="创建时间" width="180" />
-                <el-table-column label="操作" >
+                <el-table-column label="操作">
                     <template #default="scope">
-                    <el-button type="danger" size="small">
-                        <el-icon class="mr-1">
-                            <Delete />
-                        </el-icon>
-                        删除
-                    </el-button>
-                </template>
+                        <el-button type="danger" size="small" @click="deleteCategorySubmit(scope.row)">
+                            <el-icon class="mr-1">
+                                <Delete />
+                            </el-icon>
+                            删除
+                        </el-button>
+                    </template>
                 </el-table-column>
             </el-table>
 
             <!-- 分页 -->
             <div class="mt-10 flex justify-center">
                 <el-pagination v-model:current-page="current" v-model:page-size="size" :page-sizes="[10, 20, 50]"
-                :small="false" :background="true" layout="total, sizes, prev, pager, next, jumper"
-                :total="total" @size-change="handleSizeChange" @current-change="getTableData" />
+                    :small="false" :background="true" layout="total, sizes, prev, pager, next, jumper" :total="total"
+                    @size-change="handleSizeChange" @current-change="getTableData" />
             </div>
 
         </el-card>
 
-    <!-- 添加分类 -->
-    <el-dialog v-model="dialogVisible" title="添加文章分类" width="40%" :draggable ="true" :close-on-click-modal="false" :close-on-press-escape="false">
-        <el-form ref="formRef" :rules="rules" :model="form">
-                    <el-form-item label="分类名称" prop="name" label-width="80px">
-                        <!-- 输入框组件 -->
-                        <el-input size="large" v-model="form.name" placeholder="请输入分类名称" maxlength="20" show-word-limit clearable/>
-                    </el-form-item>
-                </el-form>
-        <template #footer>
-            <span class="dialog-footer">
-                <el-button @click="dialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="onSubmit">
-                    提交
-                </el-button>
-            </span>
-        </template>
-    </el-dialog>
+        <!-- 添加分类 -->
+        <el-dialog v-model="dialogVisible" title="添加文章分类" width="40%" :draggable="true" :close-on-click-modal="false"
+            :close-on-press-escape="false">
+            <el-form ref="formRef" :rules="rules" :model="form">
+                <el-form-item label="分类名称" prop="name" label-width="80px">
+                    <!-- 输入框组件 -->
+                    <el-input size="large" v-model="form.name" placeholder="请输入分类名称" maxlength="20" show-word-limit
+                        clearable />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="onSubmit">
+                        提交
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
 
     </div>
 </template>
@@ -78,10 +80,9 @@
 <script setup>
 import { Search, RefreshRight } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
-import { getCategoryPageList, addCategory } from '@/api/admin/category'
+import { getCategoryPageList, addCategory, deleteCategory } from '@/api/admin/category'
 import moment from 'moment'
 import { showMessage, showModel } from '@/composables/util'
-
 // 分页查询的分类名称
 const searchCategoryName = ref('')
 // 日期
@@ -142,16 +143,16 @@ const size = ref(10)
 // 获取分页数据
 function getTableData() {
     // 调用后台分页接口，并传入所需参数
-    getCategoryPageList({current: current.value, size: size.value, startDate: startDate.value, endDate: endDate.value, name: searchCategoryName.value})
-    .then((res) => {
-        if (res.success == true) {
-        
-            tableData.value = res.data
-            current.value = res.current
-            size.value = res.size
-            total.value = res.total
-        }
-    })
+    getCategoryPageList({ current: current.value, size: size.value, startDate: startDate.value, endDate: endDate.value, name: searchCategoryName.value })
+        .then((res) => {
+            if (res.success == true) {
+
+                tableData.value = res.data
+                current.value = res.current
+                size.value = res.size
+                total.value = res.total
+            }
+        })
 }
 getTableData()
 
@@ -221,5 +222,23 @@ const onSubmit = () => {
 
     })
 }
-
+const deleteCategorySubmit = (row) => {
+    console.log(row.id)
+    showModel('是否确定要删除该分类？').then(() => {
+        deleteCategory(row.id).then((res) => {
+            if (res.success == true) {
+                showMessage('删除成功')
+                // 重新请求分页接口，渲染数据
+                getTableData()
+            } else {
+                // 获取服务端返回的错误消息
+                let message = res.message
+                // 提示错误消息
+                showMessage(message, 'error')
+            }
+        })
+    }).catch(() => {
+        console.log('取消了')
+    })
+}
 </script>
