@@ -53,8 +53,7 @@
         </div>
     </div>
     <!-- 修改密码 -->
-    <el-dialog v-model="dialogVisible" title="修改密码" width="40%" :draggable="true" :close-on-click-modal="false"
-        :close-on-press-escape="false">
+    <FormDialog ref="formDialogRef" title="修改密码" destroyOnClose @submit="onSubmit">
         <el-form ref="formRef" :rules="rules" :model="form">
             <el-form-item label="用户名" prop="username" label-width="120px">
                 <!-- 输入框组件 -->
@@ -69,15 +68,7 @@
                     show-password />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <span class="dialog-footer">
-                <el-button @click="dialogVisible = false">取消</el-button>
-				<el-button type="primary" @click="onSubmit">
-                    提交
-                </el-button>
-            </span>
-        </template>
-    </el-dialog>
+    </FormDialog>
 </template>
 
 <script setup>
@@ -90,6 +81,7 @@ import { useFullscreen } from '@vueuse/core'
 import { showModel, showMessage } from '@/composables/util'
 import { ref, reactive, watch } from 'vue'
 import { updateAdminPassword } from '@/api/admin/user' // 新增导入
+import FormDialog from '@/components/FormDialog.vue' // 新增导入 FormDialog 组件
 // 引入了用户 Store
 const userStore = useUserStore()
 const router = useRouter()
@@ -97,6 +89,8 @@ const router = useRouter()
 const menuStore = useMenuStore()
 // 表单引用
 const formRef = ref(null)
+// 新增 formDialogRef 引用
+const formDialogRef = ref(null)
 // icon 点击事件
 const handleMenuWidth = () => {
     // 动态设置菜单的宽度大小
@@ -108,13 +102,14 @@ const { isFullscreen, toggle } = useFullscreen()
 // 刷新页面
 const handleRefresh = () => location.reload()
 // 对话框是否显示
-const dialogVisible = ref(false)
+// const dialogVisible = ref(false) // 注释掉旧的 dialogVisible
 // 下拉菜单事件处理
 const handleCommand = (command) => {
     // 更新密码
     if (command == 'updatePassword') {
         // 显示修改密码对话框
-        dialogVisible.value = true
+        // dialogVisible.value = true // 注释掉旧的显示对话框逻辑
+        formDialogRef.value.open() // 使用 FormDialog 的 open 方法
     } else if (command == 'logout') { // 退出登录
         logout()
     }
@@ -172,7 +167,8 @@ const onSubmit = () => {
                 userStore.logout()
 
                 // 隐藏对话框
-                dialogVisible.value = false
+                // dialogVisible.value = false // 注释掉旧的隐藏对话框逻辑
+                formDialogRef.value.close() // 使用 FormDialog 的 close 方法
 
                 // 跳转登录页
                 router.push('/login')
