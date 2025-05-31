@@ -2,7 +2,7 @@
     <Header></Header>
 
     <!-- 主内容区域 -->
-    <main class="container max-w-screen-xl mx-auto p-4">
+    <main class="container max-w-screen-xl mx-auto p-4 px-6">
         <!-- grid 表格布局，分为 4 列 -->
         <div class="grid grid-cols-4 gap-7">
             <!-- 左边栏，占用 3 列 -->
@@ -49,7 +49,7 @@
                                             stroke-width="2"
                                             d="M1 5v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm0 0V2a1 1 0 0 1 1-1h5.443a1 1 0 0 1 .8.4l2.7 3.6H1Z" />
                                     </svg>
-                                    <a href="#" class="text-gray-400 hover:underline">{{ article.category.name }}</a>
+                                    <a @click="goToCategoryPage(article.category.id, article.category.name)" class="text-gray-400 hover:underline cursor-pointer">{{ article.category.name }}</a>
                                 </p>
                             </div>
                         </div>
@@ -128,7 +128,10 @@ import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import { initTooltips } from 'flowbite'
 import { onMounted, ref } from 'vue'
 import { getArticlePageList } from '@/api/frontend/article'
+import { useRouter } from 'vue-router'
 
+
+const router = useRouter()
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -146,6 +149,10 @@ const total = ref(0)
 // 总共多少页
 const pages = ref(0)
 
+// 新增方法：跳转到分类文章列表页
+function goToCategoryPage(id, name) {
+    router.push({ path: '/category/article/list', query: { id, name } })
+}
 
 function getArticles(currentNo) {
     // 上下页是否能点击判断，当要跳转上一页且页码小于 1 时，则不允许跳转；当要跳转下一页且页码大于总页数时，则不允许跳转
