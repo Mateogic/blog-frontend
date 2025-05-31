@@ -1,0 +1,535 @@
+<template>
+    <Header></Header>
+
+    <!-- 主内容区域 -->
+    <main class="container max-w-screen-xl mx-auto p-4">
+        <!-- grid 表格布局，分为 4 列 -->
+        <div class="grid grid-cols-4 gap-7">
+            <!-- 左边栏，占用 3 列 -->
+            <div class="col-span-4 md:col-span-3 mb-3">
+                <!-- 文章卡片父容器 -->
+                <div
+                    class="w-full p-5 mb-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                    <!-- 面包屑 -->
+                    <nav class="flex text-gray-400" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="/"
+                                    class="inline-flex items-center text-sm font-medium hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                                    <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                                    </svg>
+                                    首页
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    /
+                                    <a href="#"
+                                        class="ml-1 text-sm font-medium md:ml-3 dark:text-gray-400 dark:hover:text-white">正文</a>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <!-- 文章 -->
+                    <article>
+                        <!-- 文章标题 -->
+                        <h1 class="mt-4 font-bold text-3xl">{{ article.title }}</h1>
+                        <!-- 文章 meta 信息，如发布时间等 -->
+                        <div class="text-gray-400 flex items-center mt-5 text-sm">
+                            <!-- 发布时间 -->
+                            <svg class="inline w-3 h-3 mr-2 dark:text-white" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 1v3m5-3v3m5-3v3M1 7h18M5 11h10M2 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
+                            </svg>
+                            <span class="mr-1 hidden md:inline">发表于</span> {{ article.createTime }}
+
+                            <!-- 分类 -->
+                            <svg class="inline w-3 h-3 ml-5 mr-2 dark:text-white" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M1 5v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm0 0V2a1 1 0 0 1 1-1h5.443a1 1 0 0 1 .8.4l2.7 3.6H1Z" />
+                            </svg>
+                            <span class="hidden md:inline">分类于</span>
+                            <a @click="goCategoryArticleListPage(article.categoryId, article.categoryName)"
+                                class="cursor-pointer mr-1 hover:underline">{{ article.categoryName }}</a>
+
+                            <!-- 阅读量 -->
+                            <svg class="inline w-3 h-3 ml-5 mr-2 dark:text-white" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14">
+                                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                    <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
+                                </g>
+                            </svg>
+                            <span class="mr-1 hidden md:inline">阅读量</span> {{ article.readNum }}
+                        </div>
+
+                        <!-- 正文 -->
+                        <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content"></div>
+
+                        <!-- 标签集合 -->
+                        <div v-if="article.tags && article.tags.length > 0" class="mt-5">
+                            <span @click="goTagArticleListPage(tag.id, tag.name)" v-for="(tag, index) in article.tags"
+                                :key="index"
+                                class="inline-block mb-1 cursor-pointer bg-green-100 text-green-800 text-xs font-medium mr-2 px-3 py-1 rounded-full hover:bg-green-200 hover:text-green-900 dark:bg-green-900 dark:text-green-300">
+                                # {{ tag.name }}
+                            </span>
+                        </div>
+
+                        <!-- 上下篇 -->
+                        <nav class="flex flex-row mt-7">
+                            <!-- basis-1/2 用于占用 flex 布局的一半空间 -->
+                            <div class="basis-1/2">
+                                <!-- h-full 指定高度占满 -->
+                                <a v-if="article.preArticle"
+                                    @click="router.push('/article/' + article.preArticle.articleId)"
+                                    class="cursor-pointer flex flex-col h-full p-4 mr-3 text-base font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                    <div>
+                                        <svg class="inline w-3.5 h-3.5 mr-2 mb-1" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"></path>
+                                        </svg>
+                                        上一篇
+                                    </div>
+                                    <div>{{ article.preArticle.articleTitle }}</div>
+                                </a>
+                            </div>
+
+                            <div class="basis-1/2">
+                                <!-- text-right 指定文字居右显示 -->
+                                <a v-if="article.nextArticle"
+                                    @click="router.push('/article/' + article.nextArticle.articleId)"
+                                    class="cursor-pointer flex flex-col h-full text-right p-4 text-base font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                                    <div>
+                                        下一篇
+                                        <svg class="inline w-3.5 h-3.5 ml-2 mb-1" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+                                        </svg>
+                                    </div>
+                                    <div>{{ article.nextArticle.articleTitle }}</div>
+                                </a>
+                            </div>
+                        </nav>
+                    </article>
+
+
+
+                </div>
+            </div>
+
+            <!-- 右边侧边栏，占用一列 -->
+            <aside class="col-span-4 md:col-span-1">
+                <div>
+                    <!-- 博主信息 -->
+                    <UserInfoCard></UserInfoCard>
+
+                    <!-- 分类 -->
+                    <CategoryListCard></CategoryListCard>
+
+                    <!-- 标签 -->
+                    <TagListCard></TagListCard>
+                </div>
+                
+                <!-- 文章目录 -->
+                <Toc></Toc>
+
+            </aside>
+        </div>
+    </main>
+
+    <!-- 返回顶部 -->
+    <ScrollToTopButton></ScrollToTopButton>
+
+    <Footer></Footer>
+</template>
+
+<script setup>
+import Header from '@/layouts/frontend/components/Header.vue'
+import Footer from '@/layouts/frontend/components/Footer.vue'
+import UserInfoCard from '@/layouts/frontend/components/UserInfoCard.vue'
+import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
+import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
+import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
+import Toc from '@/layouts/frontend/components/Toc.vue'
+import { getArticleDetail } from '@/api/frontend/article'
+import { useRoute, useRouter } from 'vue-router'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue' // 确保 nextTick 已导入
+import hljs from 'highlight.js'
+import 'highlight.js/styles/tokyo-night-dark.css'
+
+const route = useRoute()
+const router = useRouter()
+// 路由传递过来的文章 ID
+// console.log(route.params.articleId)
+
+// 文章数据
+const article = ref({})
+const articleContentRef = ref(null)
+
+// Function to add copy buttons to pre elements
+function addCopyButtons() {
+    if (!articleContentRef.value) return;
+    const pres = articleContentRef.value.querySelectorAll('pre');
+    pres.forEach(pre => {
+        // Check if a copy button already exists as a direct child of pre
+        let existingButton = null;
+        for (let child of pre.children) {
+            if (child.classList && child.classList.contains('copy-button')) {
+                existingButton = child;
+                break;
+            }
+        }
+
+        if (!existingButton) {
+            const copyButton = document.createElement('button');
+            copyButton.innerText = '复制';
+            copyButton.className = 'copy-button'; // Use className for simplicity
+            copyButton.setAttribute('aria-label', '复制代码');
+            copyButton.setAttribute('type', 'button'); // Good practice for buttons
+
+            copyButton.addEventListener('click', async () => {
+                const codeElement = pre.querySelector('code');
+                if (codeElement) {
+                    const textToCopy = codeElement.innerText;
+                    try {
+                        await navigator.clipboard.writeText(textToCopy);
+                        copyButton.innerText = '已复制!';
+                        copyButton.style.backgroundColor = '#48BB78'; // Tailwind green-500 for success
+                    } catch (err) {
+                        console.error('无法复制到剪贴板:', err);
+                        copyButton.innerText = '失败';
+                        copyButton.style.backgroundColor = '#F56565'; // Tailwind red-500 for error
+                    } finally {
+                        setTimeout(() => {
+                            copyButton.innerText = '复制';
+                            copyButton.style.backgroundColor = ''; // Reset background color
+                        }, 2000);
+                    }
+                }
+            });
+            pre.appendChild(copyButton);
+        }
+    });
+}
+
+// Function to process article content: highlight and add copy buttons
+function processArticleContent() {
+    nextTick(() => {
+        if (articleContentRef.value) {
+            const highlightBlocks = articleContentRef.value.querySelectorAll('pre code');
+            highlightBlocks.forEach((block) => {
+                // Only highlight if not already highlighted by hljs
+                if (!block.classList.contains('hljs')) {
+                    hljs.highlightElement(block);
+                }
+            });
+            addCopyButtons();
+        }
+    });
+}
+
+// 获取文章详情
+function refreshArticleDetail(articleIdToLoad) {
+    getArticleDetail(articleIdToLoad).then((res) => {
+        if (!res.success && res.errorCode == '20010') {
+            router.push({ name: 'NotFound' });
+            return;
+        }
+        article.value = res.data;
+        processArticleContent(); // Process content after data is loaded and DOM is about to be updated
+    });
+}
+
+// Initial load if articleId is present in route params
+if (route.params.articleId) {
+    refreshArticleDetail(route.params.articleId);
+}
+
+// 监听路由参数 articleId 的变化
+watch(() => route.params.articleId, (newArticleId, oldArticleId) => {
+    if (newArticleId && newArticleId !== oldArticleId) {
+        refreshArticleDetail(newArticleId);
+    }
+});
+
+onMounted(() => {
+    if (articleContentRef.value) {
+        const observer = new MutationObserver(mutationsList => {
+            for (let mutation of mutationsList) {
+                // We are interested in changes to the direct children of articleContentRef or its subtree
+                if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                    // console.log('MutationObserver triggered for article content DOM change.');
+                    processArticleContent();
+                    // Once processed, we can break if we assume one batch of changes
+                    break; 
+                }
+            }
+        });
+
+        // Configuration of the observer:
+        const config = { childList: true, subtree: true };
+        // Start observing the target node for configured mutations
+        observer.observe(articleContentRef.value, config);
+        
+        // Initial processing is handled by refreshArticleDetail's success callback.
+        // If articleContentRef.value is populated by v-html, 
+        // the MutationObserver or the nextTick in processArticleContent should handle it.
+    }
+});
+
+// 跳转分类文章列表页
+const goCategoryArticleListPage = (id, name) => {
+    // 跳转时通过 query 携带参数（分类 ID、分类名称）
+    router.push({ path: '/category/article/list', query: { id, name } })
+}
+
+// 跳转标签文章列表页
+const goTagArticleListPage = (id, name) => {
+    // 跳转时通过 query 携带参数（标签 ID、标签名称）
+    router.push({ path: '/tag/article/list', query: { id, name } })
+}
+</script>
+
+<style>
+/* h1, h2, h3, h4, h5, h6 标题样式 */
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    color: #292525;
+    line-height: 150%;
+    font-family: PingFang SC, Helvetica Neue, Helvetica, Hiragino Sans GB, Microsoft YaHei, "\5FAE\8F6F\96C5\9ED1", Arial, sans-serif;
+}
+
+.article-content h2 {
+    line-height: 1.5;
+    font-weight: 700;
+    font-synthesis: style;
+    font-size: 24px;
+    margin-top: 40px;
+    margin-bottom: 26px;
+    line-height: 140%;
+    border-bottom: 1px solid rgb(241 245 249);
+    padding-bottom: 15px;
+}
+
+.article-content h3 {
+    font-size: 20px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.article-content h4 {
+    font-size: 18px;
+    margin-top: 30px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.article-content h5,
+h6 {
+    font-size: 16px;
+    margin-top: 30px;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+/* p 段落样式 */
+.article-content p {
+    letter-spacing: .3px;
+    margin: 0 0 20px;
+    line-height: 30px;
+    color: #4c4e4d;
+    font-weight: 400;
+    word-break: normal;
+    word-wrap: break-word;
+    font-family: -apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB, Microsoft Yahei, Arial, sans-serif;
+}
+
+/* blockquote 引用样式 */
+.article-content blockquote {
+    border-left: 2.3px solid rgb(52, 152, 219);
+    quotes: none;
+    background: rgb(236, 240, 241);
+    color: #777;
+    font-size: 16px;
+    margin: 2em 0;
+    padding: 24px;
+}
+
+/* 设置 blockquote 中最后一个 p 标签的 margin-bottom 为 0 */
+.article-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* 斜体样式 */
+.article-content em {
+    color: #c849ff;
+}
+
+/* 超链接样式 */
+.article-content a {
+    color: #167bc2;
+}
+
+.article-content a:hover {
+    text-decoration: underline;
+}
+
+/* ul 样式 */
+.article-content ul {
+    padding-left: 2rem;
+}
+
+.article-content ul li {
+    list-style-type: disc;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 16px;
+}
+
+/* ol 样式 */
+.article-content ol {
+    list-style-type: decimal;
+    padding-left: 2rem;
+}
+
+/* 图片样式 */
+.article-content img {
+    max-width: 100%;
+    overflow: hidden;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+}
+
+.article-content img:hover,
+img:focus {
+    box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, .15);
+}
+
+/* 图片描述文字 */
+.image-caption {
+    min-width: 20%;
+    max-width: 80%;
+    min-height: 43px;
+    display: block;
+    padding: 10px;
+    margin: 0 auto;
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+}
+
+/* code 样式 */
+.article-content code:not(pre code) {
+    padding: 2px 4px;
+    margin: 0 2px;
+    font-size: 95% !important;
+    border-radius: 4px;
+    color: rgb(41, 128, 185);
+    background-color: rgba(27, 31, 35, 0.05);
+    font-family: Operator Mono, Consolas, Monaco, Menlo, monospace;
+}
+
+/* pre 样式 - 确保 position: relative for copy button positioning */
+.article-content pre {
+    position: relative;
+}
+
+pre code.hljs {
+    padding-top: 2rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 6px;
+}
+
+pre:before {
+    background: #fc625d;
+    border-radius: 50%;
+    box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;
+    content: ' ';
+    height: 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+    position: absolute;
+    width: 10px;
+}
+
+/* New styles for the copy button */
+.copy-button {
+    position: absolute;
+    top: 10px; /* Align with pre:before decorative dots */
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #4A5568; /* Tailwind gray-700 or your preferred color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease-in-out, background-color 0.3s ease;
+    z-index: 10; /* Ensure it's above other elements like line numbers if any */
+}
+
+.article-content pre:hover .copy-button {
+    opacity: 1; /* Show on hover over the pre block */
+}
+
+.copy-button:hover {
+    background-color: #2D3748; /* Darker shade on hover, e.g., Tailwind gray-800 */
+}
+
+/* 表格样式 */
+.article-content table {
+    border-collapse: collapse; /* 合并边框 */
+    border-spacing: 0; /* 单元格间距为0 */
+    margin-bottom: 20px; /* 原始样式：下边距 */
+    width: 100%; /* 原始样式：宽度100% */
+    display: table !important; /* 确保以表格形式显示 */
+}
+
+.article-content table thead {
+    display: table-header-group !important; /* 确保表头组正确显示 */
+}
+
+.article-content table tbody {
+    display: table-row-group !important; /* 确保表体组正确显示 */
+}
+
+.article-content table tr {
+    display: table-row !important; /* 确保以表格行形式显示 */
+    border-top: 1px solid #c6cbd1; /* 原始样式：行上边框 */
+    background-color: #fff; /* 默认背景色，奇数行 */
+}
+
+.article-content table tr:nth-child(2n) {
+    background-color: #f6f8fa; /* 原始样式：偶数行背景色 */
+}
+
+.article-content table th,
+.article-content table td {
+    padding: 6px 13px; /* 原始样式：内边距 */
+    border: 1px solid #dfe2e5; /* 原始样式：单元格边框 */
+    display: table-cell !important; /* 确保以表格单元格形式显示 */
+    text-align: left; /* 左对齐文本内容 */
+}
+
+.article-content table th {
+    font-weight: bold; /* 表头文字加粗 */
+    /* 如果需要，可以为表头设置不同于行条纹的特定背景色 */
+    /* background-color: #e9ecef; */
+}
+</style>

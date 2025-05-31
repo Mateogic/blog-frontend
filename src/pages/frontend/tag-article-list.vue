@@ -16,7 +16,7 @@
                     </h1>
                     <ol v-if="articles && articles.length > 0" class="mt-3 divide-y divider-gray-200 dark:divide-gray-700">
                         <li v-for="(article, index) in articles" :key="index">
-                            <a href="#" class="items-center block p-3 sm:flex hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <a @click="goArticleDetailPage(article.id)" class="cursor-pointer items-center block p-3 sm:flex hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <img class="w-24 h-12 mb-3 mr-3 rounded-lg sm:mb-0" :src="article.cover" />
                                 <div class="text-gray-600 dark:text-gray-400">
                                     <h2 class="text-base font-normal text-gray-900">
@@ -271,6 +271,9 @@
 
 </main>
 
+<!-- 返回顶部 -->
+<ScrollToTopButton></ScrollToTopButton>
+
 <Footer></Footer></template>
 
 <script setup>
@@ -279,11 +282,13 @@ import Footer from '@/layouts/frontend/components/Footer.vue'
 import UserInfoCard from '@/layouts/frontend/components/UserInfoCard.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
+import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
 import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getTagArticlePageList } from '@/api/frontend/tag'
 
 const route = useRoute()
+const router = useRouter()
 
 // 文章集合
 const articles = ref([])
@@ -322,5 +327,11 @@ function getTagArticles(currentNo) {
         }
     })
 }
+
+// 跳转文章详情页
+const goArticleDetailPage = (articleId) => {
+    router.push('/article/' + articleId)
+}
+
 getTagArticles(current.value)
 </script>

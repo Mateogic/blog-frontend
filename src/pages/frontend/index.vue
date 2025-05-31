@@ -2,7 +2,7 @@
     <Header></Header>
 
     <!-- 主内容区域 -->
-    <main class="container max-w-screen-xl mx-auto p-4 px-6">
+    <main class="container max-w-screen-xl mx-auto p-4">
         <!-- grid 表格布局，分为 4 列 -->
         <div class="grid grid-cols-4 gap-7">
             <!-- 左边栏，占用 3 列 -->
@@ -103,18 +103,23 @@
 
             <!-- 右边侧边栏，占用一列 -->
             <aside class="col-span-4 md:col-span-1">
-                <!-- 博主信息 -->
-                <UserInfoCard></UserInfoCard>
+                <div class="sticky top-[5.5rem]">
+                    <!-- 博主信息 -->
+                    <UserInfoCard></UserInfoCard>
 
-                <!-- 分类 -->
-                <CategoryListCard></CategoryListCard>
+                    <!-- 分类 -->
+                    <CategoryListCard></CategoryListCard>
 
-                <!-- 标签 -->
-                <TagListCard></TagListCard>
-        </aside>
+                    <!-- 标签 -->
+                    <TagListCard></TagListCard>
+                </div>
+            </aside>
     </div>
 
     </main>
+
+    <!-- 返回顶部 -->
+    <ScrollToTopButton></ScrollToTopButton>
 
     <Footer></Footer>
 </template>
@@ -125,6 +130,7 @@ import Footer from '@/layouts/frontend/components/Footer.vue'
 import UserInfoCard from '@/layouts/frontend/components/UserInfoCard.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
+import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
 import { initTooltips } from 'flowbite'
 import { onMounted, ref } from 'vue'
 import { getArticlePageList } from '@/api/frontend/article'
@@ -136,12 +142,6 @@ const router = useRouter()
 const goCategoryArticleListPage = (id, name) => {
     // 跳转时通过 query 携带参数（分类 ID、分类名称）
     router.push({path: '/category/article/list', query: {id, name}})
-}
-
-// 跳转标签文章列表页
-const goTagArticleListPage = (id, name) => {
-    // 跳转时通过 query 携带参数（标签 ID、标签名称）
-    router.push({path: '/tag/article/list', query: {id, name}})
 }
 
 
@@ -183,4 +183,9 @@ const goArticleDetailPage = (articleId) => {
     router.push('/article/' + articleId)
 }
 
+// 跳转标签文章列表页
+const goTagArticleListPage = (id, name) => {
+    // 跳转时通过 query 携带参数（标签 ID、标签名称）
+    router.push({path: '/tag/article/list', query: {id, name}})
+}
 </script>
