@@ -1,8 +1,124 @@
 <template>
     <Header></Header>
 
+    <!-- 文章标题、标签、Meta 信息 -->
+    <div class="bg-white">
+        <div class="max-w-screen-xl flex flex-col flex-wrap mx-auto px-4 md:px-6 pb-14 pt-10">
+            <!-- 标签集合 -->
+            <div v-if="article.tags && article.tags.length > 0" class="mb-5">
+                <span @click="goTagArticleListPage(tag.id, tag.name)" v-for="(tag, index) in article.tags" :key="index"
+                    class="inline-block mb-1 cursor-pointer bg-green-100 text-green-800 text-sm font-medium me-2 
+                    px-2.5 py-0.5 rounded-md hover:bg-green-200 hover:text-green-900 
+                    dark:bg-green-900 dark:hover:bg-green-950 dark:text-green-300">
+                    # {{ tag.name }}
+                </span>
+            </div>
+            
+            <!-- 文章标题 -->
+            <h1 class="font-bold text-4xl md:text-5xl mb-8">{{ article.title }}</h1>
+
+            <!-- Meta 信息 -->
+            <div class="flex gap-3 md:gap-6 text-gray-400 items-center text-sm">
+                <!-- 字数 -->
+                <div class="flex items-center" data-tooltip-target="word-tooltip-bottom" data-tooltip-placement="bottom">
+                    <svg t="1701512226243" class="w-4 h-4 mr-1 icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="28617" width="48" height="48">
+                        <path
+                            d="M682.666667 85.333333l213.333333 213.333334v597.674666a42.368 42.368 0 0 1-42.368 42.325334H170.368A42.666667 42.666667 0 0 1 128 896.341333V127.658667C128 104.277333 146.986667 85.333333 170.368 85.333333H682.666667z m-85.333334 256v212.864L512 469.333333l-84.906667 85.333334L426.666667 341.333333H341.333333v341.333334h85.333334l85.333333-85.333334 85.333333 85.333334h85.333334V341.333333h-85.333334z"
+                            p-id="28618" fill="#8a8a8a"></path>
+                    </svg>
+                    666
+                </div>
+                <!-- 文章字数 Tooltip -->
+                <div id="word-tooltip-bottom" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    总字数
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- 阅读时长 -->
+                <div class="hidden md:block">
+                    <div class="flex items-center" data-tooltip-target="read-time-tooltip-bottom"
+                        data-tooltip-placement="bottom">
+                        <svg t="1701512553358" class="w-4 h-4 mr-1.5 icon" viewBox="0 0 1024 1024" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" p-id="37812" width="48" height="48">
+                            <path
+                                d="M513 33.22c-265.1 0-480 214.9-480 480s214.9 480 480 480 480-214.9 480-480-214.9-480-480-480z m208.9 652.59c-11.05 19.13-35.51 25.69-54.64 14.64L474.1 588.93c-13.06-7.54-20.26-21.34-19.99-35.42 0-0.17-0.01-0.34-0.01-0.51V329.95c0-22.09 17.91-40 40-40s40 17.91 40 40v201.23l173.17 99.98c19.12 11.05 25.68 35.51 14.63 54.65z"
+                                fill="#8a8a8a" p-id="37813"></path>
+                        </svg>
+                       约2分钟
+                    </div>
+                    <!-- 阅读时长 Tooltip -->
+                    <div id="read-time-tooltip-bottom" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                        阅读时长
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+                </div>
+
+                <!-- 发布时间 -->
+                <div class="flex items-center" data-tooltip-target="publish-time-tooltip-bottom"
+                    data-tooltip-placement="bottom">
+                    <svg t="1701513012543" class="w-[18px] h-[18px] mr-1 icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="41600" width="48" height="48">
+                        <path
+                            d="M725.333333 170.666667h74.709334C864.853333 170.666667 917.333333 223.189333 917.333333 288.096V799.893333C917.333333 864.757333 864.832 917.333333 800.042667 917.333333H223.957333C159.146667 917.333333 106.666667 864.810667 106.666667 799.904V288.106667C106.666667 223.242667 159.168 170.666667 223.957333 170.666667H298.666667v-32a32 32 0 0 1 64 0v32h298.666666v-32a32 32 0 0 1 64 0v32z m0 64v32a32 32 0 0 1-64 0v-32H362.666667v32a32 32 0 0 1-64 0v-32h-74.709334A53.354667 53.354667 0 0 0 170.666667 288.096V799.893333A53.301333 53.301333 0 0 0 223.957333 853.333333h576.085334A53.354667 53.354667 0 0 0 853.333333 799.904V288.106667A53.301333 53.301333 0 0 0 800.042667 234.666667H725.333333z m-10.666666 224a32 32 0 0 1 0 64H309.333333a32 32 0 0 1 0-64h405.333334zM586.666667 618.666667a32 32 0 0 1 0 64H309.333333a32 32 0 0 1 0-64h277.333334z"
+                            fill="#8a8a8a" p-id="41601"></path>
+                    </svg>
+                    {{ article.createTime }}
+                </div>
+                <!-- 发布时间 Tooltip -->
+                <div id="publish-time-tooltip-bottom" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    发布时间
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- 分类 -->
+                <div class="flex items-center" data-tooltip-target="category-tooltip-bottom"
+                    data-tooltip-placement="bottom">
+                    <svg t="1701513357854" class="w-4 h-4 mr-1.5 icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="50560" width="48" height="48">
+                        <path
+                            d="M476.7232 112.503467L121.634133 279.825067a68.266667 68.266667 0 0 0 1.6896 124.279466l355.089067 155.648a68.266667 68.266667 0 0 0 54.818133 0l355.089067-155.6992a68.266667 68.266667 0 0 0 1.672533-124.279466l-355.089066-167.253334a68.266667 68.266667 0 0 0-58.197334 0zM150.7328 341.572267l355.089067-167.304534 355.072 167.253334-355.089067 155.6992-355.072-155.648zM860.842667 685.346133a34.133333 34.133333 0 0 1 28.962133 61.781334l-2.4064 1.1264-368.810667 155.682133a34.133333 34.133333 0 0 1-23.671466 1.0752l-2.8672-1.0752-368.7936-155.648a34.133333 34.133333 0 0 1 24.064-63.829333l2.491733 0.938666 355.498667 150.050134 355.5328-150.101334z"
+                            fill="#444444" p-id="50561"></path>
+                        <path
+                            d="M853.333333 512l-341.486933 153.634133L170.666667 512.341333v55.210667c0 13.4656 7.748267 25.6512 19.712 30.9248l286.190933 126.976a78.7968 78.7968 0 0 0 35.2768 8.3968c12.049067 0 24.081067-2.798933 35.293867-8.3968l286.498133-127.249067A33.7408 33.7408 0 0 0 853.333333 567.278933V512z"
+                            fill="#00B386" p-id="50562"></path>
+                    </svg>
+                    <a @click="goCategoryArticleListPage(article.categoryId, article.categoryName)"
+                        class="cursor-pointer mr-1 hover:underline">{{ article.categoryName }}</a>
+                </div>
+                <!-- 分类 Tooltip -->
+                <div id="category-tooltip-bottom" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    分类
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- 阅读量 -->
+                <div class="flex items-center" data-tooltip-target="read-num-tooltip-bottom"
+                    data-tooltip-placement="bottom">
+                    <svg t="1701513523793" class="w-[18px] h-[18px] mr-1 icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="56112" width="48" height="48">
+                        <path
+                            d="M512 87.806c-234.721 0-424.194 189.474-424.194 424.194s189.474 424.194 424.194 424.194 424.194-189.474 424.194-424.194-189.474-424.194-424.194-424.194zM594.010 825.904c-18.382 12.725-25.452 8.484-12.725-4.242 11.312-12.725 83.425-103.22-29.694-168.263-36.763-21.21-49.49-72.113-49.49-83.425 0-12.725 2.829-18.382-7.069-14.141-8.484 2.829-195.13 91.908-41.007 265.828 9.899 11.312 5.655 14.141-12.725 5.655-419.953-224.822 137.155-579.732 145.639-583.974 8.484-5.655 5.655 2.829-1.414 16.967-12.725 25.452-45.248 164.022 41.007 220.582 87.668 56.56 213.509 172.507-32.522 345.012z"
+                            p-id="56113" fill="#8a8a8a"></path>
+                    </svg>
+                    {{ article.readNum }}
+                </div>
+                <!-- 阅读量 Tooltip -->
+                <div id="read-num-tooltip-bottom" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    阅读量
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 主内容区域 -->
-    <main class="container max-w-screen-xl mx-auto p-4">
+    <main class="container max-w-screen-xl mx-auto px-4 md:px-6 py-4">
         <!-- grid 表格布局，分为 4 列 -->
         <div class="grid grid-cols-4 gap-7">
             <!-- 左边栏，占用 3 列 -->
@@ -10,76 +126,10 @@
                 <!-- 文章卡片父容器 -->
                 <div
                     class="w-full p-5 mb-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                    <!-- 面包屑 -->
-                    <nav class="flex text-gray-400" aria-label="Breadcrumb">
-                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                            <li class="inline-flex items-center">
-                                <a href="/"
-                                    class="inline-flex items-center text-sm font-medium hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                                    <svg class="w-3 h-3 mr-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                        fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                                    </svg>
-                                    首页
-                                </a>
-                            </li>
-                            <li>
-                                <div class="flex items-center">
-                                    /
-                                    <a href="#"
-                                        class="ml-1 text-sm font-medium md:ml-3 dark:text-gray-400 dark:hover:text-white">正文</a>
-                                </div>
-                            </li>
-                        </ol>
-                    </nav>
-
                     <!-- 文章 -->
                     <article>
-                        <!-- 文章标题 -->
-                        <h1 class="mt-4 font-bold text-3xl">{{ article.title }}</h1>
-                        <!-- 文章 meta 信息，如发布时间等 -->
-                        <div class="text-gray-400 flex items-center mt-5 text-sm">
-                            <!-- 发布时间 -->
-                            <svg class="inline w-3 h-3 mr-2 dark:text-white" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 1v3m5-3v3m5-3v3M1 7h18M5 11h10M2 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
-                            </svg>
-                            <span class="mr-1 hidden md:inline">发表于</span> {{ article.createTime }}
-
-                            <!-- 分类 -->
-                            <svg class="inline w-3 h-3 ml-5 mr-2 dark:text-white" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M1 5v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm0 0V2a1 1 0 0 1 1-1h5.443a1 1 0 0 1 .8.4l2.7 3.6H1Z" />
-                            </svg>
-                            <span class="hidden md:inline">分类于</span>
-                            <a @click="goCategoryArticleListPage(article.categoryId, article.categoryName)"
-                                class="cursor-pointer mr-1 hover:underline">{{ article.categoryName }}</a>
-
-                            <!-- 阅读量 -->
-                            <svg class="inline w-3 h-3 ml-5 mr-2 dark:text-white" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14">
-                                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                                    <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
-                                </g>
-                            </svg>
-                            <span class="mr-1 hidden md:inline">阅读量</span> {{ article.readNum }}
-                        </div>
-
                         <!-- 正文 -->
                         <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content"></div>
-
-                        <!-- 标签集合 -->
-                        <div v-if="article.tags && article.tags.length > 0" class="mt-5">
-                            <span @click="goTagArticleListPage(tag.id, tag.name)" v-for="(tag, index) in article.tags"
-                                :key="index"
-                                class="inline-block mb-1 cursor-pointer bg-green-100 text-green-800 text-xs font-medium mr-2 px-3 py-1 rounded-full hover:bg-green-200 hover:text-green-900 dark:bg-green-900 dark:text-green-300">
-                                # {{ tag.name }}
-                            </span>
-                        </div>
 
                         <!-- 上下篇 -->
                         <nav class="flex flex-row mt-7">
@@ -161,129 +211,38 @@ import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.v
 import Toc from '@/layouts/frontend/components/Toc.vue'
 import { getArticleDetail } from '@/api/frontend/article'
 import { useRoute, useRouter } from 'vue-router'
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue' // 确保 nextTick 已导入
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/tokyo-night-dark.css'
+import { initTooltips } from 'flowbite'
+
+// 初始化 Flowbit 组件
+onMounted(() => {
+    initTooltips();
+})
 
 const route = useRoute()
 const router = useRouter()
 // 路由传递过来的文章 ID
-// console.log(route.params.articleId)
+console.log(route.params.articleId)
 
 // 文章数据
 const article = ref({})
-const articleContentRef = ref(null)
-
-// Function to add copy buttons to pre elements
-function addCopyButtons() {
-    if (!articleContentRef.value) return;
-    const pres = articleContentRef.value.querySelectorAll('pre');
-    pres.forEach(pre => {
-        // Check if a copy button already exists as a direct child of pre
-        let existingButton = null;
-        for (let child of pre.children) {
-            if (child.classList && child.classList.contains('copy-button')) {
-                existingButton = child;
-                break;
-            }
-        }
-
-        if (!existingButton) {
-            const copyButton = document.createElement('button');
-            copyButton.innerText = '复制';
-            copyButton.className = 'copy-button'; // Use className for simplicity
-            copyButton.setAttribute('aria-label', '复制代码');
-            copyButton.setAttribute('type', 'button'); // Good practice for buttons
-
-            copyButton.addEventListener('click', async () => {
-                const codeElement = pre.querySelector('code');
-                if (codeElement) {
-                    const textToCopy = codeElement.innerText;
-                    try {
-                        await navigator.clipboard.writeText(textToCopy);
-                        copyButton.innerText = '已复制!';
-                        copyButton.style.backgroundColor = '#48BB78'; // Tailwind green-500 for success
-                    } catch (err) {
-                        console.error('无法复制到剪贴板:', err);
-                        copyButton.innerText = '失败';
-                        copyButton.style.backgroundColor = '#F56565'; // Tailwind red-500 for error
-                    } finally {
-                        setTimeout(() => {
-                            copyButton.innerText = '复制';
-                            copyButton.style.backgroundColor = ''; // Reset background color
-                        }, 2000);
-                    }
-                }
-            });
-            pre.appendChild(copyButton);
-        }
-    });
-}
-
-// Function to process article content: highlight and add copy buttons
-function processArticleContent() {
-    nextTick(() => {
-        if (articleContentRef.value) {
-            const highlightBlocks = articleContentRef.value.querySelectorAll('pre code');
-            highlightBlocks.forEach((block) => {
-                // Only highlight if not already highlighted by hljs
-                if (!block.classList.contains('hljs')) {
-                    hljs.highlightElement(block);
-                }
-            });
-            addCopyButtons();
-        }
-    });
-}
 
 // 获取文章详情
-function refreshArticleDetail(articleIdToLoad) {
-    getArticleDetail(articleIdToLoad).then((res) => {
+function refreshArticleDetail(articleId) {
+    getArticleDetail(route.params.articleId).then((res) => {
+        // 该文章不存在(错误码为 20010)
         if (!res.success && res.errorCode == '20010') {
-            router.push({ name: 'NotFound' });
-            return;
+            // 手动跳转 404 页面
+            router.push({ name: 'NotFound' })
+            return
         }
-        article.value = res.data;
-        processArticleContent(); // Process content after data is loaded and DOM is about to be updated
-    });
+
+        article.value = res.data
+    })
 }
-
-// Initial load if articleId is present in route params
-if (route.params.articleId) {
-    refreshArticleDetail(route.params.articleId);
-}
-
-// 监听路由参数 articleId 的变化
-watch(() => route.params.articleId, (newArticleId, oldArticleId) => {
-    if (newArticleId && newArticleId !== oldArticleId) {
-        refreshArticleDetail(newArticleId);
-    }
-});
-
-onMounted(() => {
-    if (articleContentRef.value) {
-        const observer = new MutationObserver(mutationsList => {
-            for (let mutation of mutationsList) {
-                // We are interested in changes to the direct children of articleContentRef or its subtree
-                if (mutation.type === 'childList' || mutation.type === 'subtree') {
-                    // console.log('MutationObserver triggered for article content DOM change.');
-                    processArticleContent();
-                    // Once processed, we can break if we assume one batch of changes
-                    break; 
-                }
-            }
-        });
-
-        // Configuration of the observer:
-        const config = { childList: true, subtree: true };
-        // Start observing the target node for configured mutations
-        observer.observe(articleContentRef.value, config);
-        
-        // Initial processing is handled by refreshArticleDetail's success callback.
-        // If articleContentRef.value is populated by v-html, 
-        // the MutationObserver or the nextTick in processArticleContent should handle it.
-    }
-});
+refreshArticleDetail(route.params.articleId)
 
 // 跳转分类文章列表页
 const goCategoryArticleListPage = (id, name) => {
@@ -296,22 +255,51 @@ const goTagArticleListPage = (id, name) => {
     // 跳转时通过 query 携带参数（标签 ID、标签名称）
     router.push({ path: '/tag/article/list', query: { id, name } })
 }
+
+// 监听路由
+watch(route, (newRoute, oldRoute) => {
+    // 重新渲染文章详情
+    refreshArticleDetail(newRoute.params.articleId)
+})
+
+const articleContentRef = ref(null)
+onMounted(() => {
+    // 使用 MutationObserver 监视 DOM 的变化
+    const observer = new MutationObserver(mutationsList => {
+        for (let mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                // 获取所有 pre code 节点
+                let highlight = document.querySelectorAll('pre code')
+                // 循环高亮
+                highlight.forEach((block) => {
+                    hljs.highlightElement(block)
+                })
+            }
+        }
+    })
+
+    // 配置监视子节点的变化
+    const config = { childList: true, subtree: true }
+    // 开始观察内容变化
+    observer.observe(articleContentRef.value, config)
+})
+
 </script>
 
-<style>
+<style scoped>
 /* h1, h2, h3, h4, h5, h6 标题样式 */
-.article-content h1,
+::v-deep(.article-content h1,
 .article-content h2,
 .article-content h3,
 .article-content h4,
 .article-content h5,
-.article-content h6 {
+.article-content h6) {
     color: #292525;
     line-height: 150%;
     font-family: PingFang SC, Helvetica Neue, Helvetica, Hiragino Sans GB, Microsoft YaHei, "\5FAE\8F6F\96C5\9ED1", Arial, sans-serif;
 }
 
-.article-content h2 {
+::v-deep(.article-content h2) {
     line-height: 1.5;
     font-weight: 700;
     font-synthesis: style;
@@ -323,22 +311,28 @@ const goTagArticleListPage = (id, name) => {
     padding-bottom: 15px;
 }
 
-.article-content h3 {
+::v-deep(.article-content h3) {
     font-size: 20px;
     margin-top: 40px;
     margin-bottom: 16px;
     font-weight: 600;
 }
 
-.article-content h4 {
+::v-deep(.article-content h4) {
     font-size: 18px;
     margin-top: 30px;
     margin-bottom: 16px;
     font-weight: 600;
 }
 
-.article-content h5,
-h6 {
+::v-deep(.article-content h5) {
+    font-size: 16px;
+    margin-top: 30px;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+::v-deep(.article-content h6) {
     font-size: 16px;
     margin-top: 30px;
     margin-bottom: 14px;
@@ -346,7 +340,7 @@ h6 {
 }
 
 /* p 段落样式 */
-.article-content p {
+::v-deep(.article-content p) {
     letter-spacing: .3px;
     margin: 0 0 20px;
     line-height: 30px;
@@ -358,55 +352,67 @@ h6 {
 }
 
 /* blockquote 引用样式 */
-.article-content blockquote {
+::v-deep(.article-content blockquote) {
     border-left: 2.3px solid rgb(52, 152, 219);
     quotes: none;
     background: rgb(236, 240, 241);
     color: #777;
     font-size: 16px;
-    margin: 2em 0;
+    margin-bottom: 20px;
     padding: 24px;
 }
 
 /* 设置 blockquote 中最后一个 p 标签的 margin-bottom 为 0 */
-.article-content blockquote p:last-child {
+::v-deep(.article-content blockquote p:last-child) {
     margin-bottom: 0;
 }
 
 /* 斜体样式 */
-.article-content em {
+::v-deep(.article-content em) {
     color: #c849ff;
 }
 
 /* 超链接样式 */
-.article-content a {
+::v-deep(.article-content a) {
     color: #167bc2;
 }
 
-.article-content a:hover {
+::v-deep(.article-content a:hover) {
     text-decoration: underline;
 }
 
 /* ul 样式 */
-.article-content ul {
+::v-deep(.article-content ul) {
     padding-left: 2rem;
 }
 
-.article-content ul li {
+::v-deep(.article-content > ul) {
+    margin-bottom: 20px;
+}
+
+::v-deep(.article-content ul li) {
     list-style-type: disc;
     padding-top: 5px;
     padding-bottom: 5px;
     font-size: 16px;
 }
 
+::v-deep(.article-content ul li p) {
+    margin-bottom: 0!important;
+}
+
+::v-deep(.article-content ul ul li) {
+    list-style-type: square;
+}
+
 /* ol 样式 */
-.article-content ol {
+::v-deep(.article-content ol) {
     list-style-type: decimal;
     padding-left: 2rem;
 }
 
 /* 图片样式 */
-.article-content img {
+::v-deep(.article-content img) {
     max-width: 100%;
     overflow: hidden;
     display: block;
@@ -414,13 +420,13 @@ h6 {
     border-radius: 8px;
 }
 
-.article-content img:hover,
-img:focus {
+::v-deep(.article-content img:hover,
+img:focus) {
     box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, .15);
 }
 
 /* 图片描述文字 */
-.image-caption {
+::v-deep(.image-caption) {
     min-width: 20%;
     max-width: 80%;
     min-height: 43px;
@@ -433,7 +439,7 @@ img:focus {
 }
 
 /* code 样式 */
-.article-content code:not(pre code) {
+::v-deep(.article-content code:not(pre code)) {
     padding: 2px 4px;
     margin: 0 2px;
     font-size: 95% !important;
@@ -443,19 +449,19 @@ img:focus {
     font-family: Operator Mono, Consolas, Monaco, Menlo, monospace;
 }
 
-/* pre 样式 - 确保 position: relative for copy button positioning */
-.article-content pre {
-    position: relative;
+/* pre 样式 */
+::v-deep(pre) {
+    margin-bottom: 20px;
 }
 
-pre code.hljs {
+::v-deep(pre code.hljs) {
     padding-top: 2rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
     border-radius: 6px;
 }
 
-pre:before {
+::v-deep(pre:before) {
     background: #fc625d;
     border-radius: 50%;
     box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;
@@ -467,69 +473,33 @@ pre:before {
     width: 10px;
 }
 
-/* New styles for the copy button */
-.copy-button {
-    position: absolute;
-    top: 10px; /* Align with pre:before decorative dots */
-    right: 10px;
-    padding: 5px 10px;
-    background-color: #4A5568; /* Tailwind gray-700 or your preferred color */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    opacity: 0; /* Hidden by default */
-    transition: opacity 0.3s ease-in-out, background-color 0.3s ease;
-    z-index: 10; /* Ensure it's above other elements like line numbers if any */
-}
-
-.article-content pre:hover .copy-button {
-    opacity: 1; /* Show on hover over the pre block */
-}
-
-.copy-button:hover {
-    background-color: #2D3748; /* Darker shade on hover, e.g., Tailwind gray-800 */
-}
-
 /* 表格样式 */
-.article-content table {
-    border-collapse: collapse; /* 合并边框 */
-    border-spacing: 0; /* 单元格间距为0 */
-    margin-bottom: 20px; /* 原始样式：下边距 */
-    width: 100%; /* 原始样式：宽度100% */
-    display: table !important; /* 确保以表格形式显示 */
+::v-deep(table) {
+    margin-bottom: 20px;
+    width: 100%;
 }
 
-.article-content table thead {
-    display: table-header-group !important; /* 确保表头组正确显示 */
+::v-deep(table tr) {
+    background-color: #fff;
+    border-top: 1px solid #c6cbd1;
 }
 
-.article-content table tbody {
-    display: table-row-group !important; /* 确保表体组正确显示 */
+::v-deep(table th) {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
 }
 
-.article-content table tr {
-    display: table-row !important; /* 确保以表格行形式显示 */
-    border-top: 1px solid #c6cbd1; /* 原始样式：行上边框 */
-    background-color: #fff; /* 默认背景色，奇数行 */
+::v-deep(table td) {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
 }
 
-.article-content table tr:nth-child(2n) {
-    background-color: #f6f8fa; /* 原始样式：偶数行背景色 */
+::v-deep(table tr:nth-child(2n)) {
+    background-color: #f6f8fa;
 }
 
-.article-content table th,
-.article-content table td {
-    padding: 6px 13px; /* 原始样式：内边距 */
-    border: 1px solid #dfe2e5; /* 原始样式：单元格边框 */
-    display: table-cell !important; /* 确保以表格单元格形式显示 */
-    text-align: left; /* 左对齐文本内容 */
-}
-
-.article-content table th {
-    font-weight: bold; /* 表头文字加粗 */
-    /* 如果需要，可以为表头设置不同于行条纹的特定背景色 */
-    /* background-color: #e9ecef; */
+/* hr 横线 */
+::v-deep(hr) {
+    margin-bottom: 20px;
 }
 </style>
