@@ -15,6 +15,8 @@ import pinia from '@/stores'
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
 const app = createApp(App)
+// 导入 element-plus 暗黑 css
+import 'element-plus/theme-chalk/dark/css-vars.css'
 
 // 1. 创建并应用 Pinia 实例
 // const pinia = createPinia()
