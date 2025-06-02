@@ -24,17 +24,17 @@
 			<!-- 文章数量、分类数量、标签数量、总访问量 -->
             <div class="flex justify-center gap-5 mb-2">
                 <div @click="router.push('/archive/list')"
-                    class="flex items-center flex-col gap-1 hover:text-blue-700 hover:scale-110 cursor-pointer">
+                    class="flex items-center flex-col gap-1 hover:text-sky-600 hover:scale-110 cursor-pointer">
                     <CountTo :value="statisticsInfo.articleTotalCount" customClass="text-lg font-bold"></CountTo>
                     <div class="text-sm">文章</div>
                 </div>
                 <div @click="router.push('/category/list')"
-                    class="flex items-center flex-col gap-1 hover:text-blue-700 hover:scale-110 cursor-pointer">
+                    class="flex items-center flex-col gap-1 hover:text-sky-600 hover:scale-110 cursor-pointer">
                     <CountTo :value="statisticsInfo.categoryTotalCount" customClass="text-lg font-bold"></CountTo>
                     <div class="text-sm">分类</div>
                 </div>
                 <div @click="router.push('/tag/list')"
-                    class="flex items-center flex-col gap-1 hover:text-blue-700 hover:scale-110 cursor-pointer">
+                    class="flex items-center flex-col gap-1 hover:text-sky-600 hover:scale-110 cursor-pointer">
                     <CountTo :value="statisticsInfo.tagTotalCount" customClass="text-lg font-bold"></CountTo>
                     <div class="text-sm">标签</div>
                 </div>
