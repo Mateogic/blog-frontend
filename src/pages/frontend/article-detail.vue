@@ -13,15 +13,14 @@
                     # {{ tag.name }}
                 </span>
             </div>
-
+            
             <!-- 文章标题 -->
             <h1 class="font-bold text-4xl md:text-5xl mb-8">{{ article.title }}</h1>
 
             <!-- Meta 信息 -->
             <div class="flex gap-3 md:gap-6 text-gray-400 items-center text-sm">
                 <!-- 字数 -->
-                <div class="flex items-center" data-tooltip-target="word-tooltip-bottom"
-                    data-tooltip-placement="bottom">
+                <div class="flex items-center" data-tooltip-target="word-tooltip-bottom" data-tooltip-placement="bottom">
                     <svg t="1701512226243" class="w-4 h-4 mr-1 icon" viewBox="0 0 1024 1024" version="1.1"
                         xmlns="http://www.w3.org/2000/svg" p-id="28617" width="48" height="48">
                         <path
@@ -130,8 +129,7 @@
                     <!-- 文章 -->
                     <article>
                         <!-- 正文 -->
-                        <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content">
-                        </div>
+                        <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content"></div>
 
                         <!-- 上下篇 -->
                         <nav class="flex flex-row mt-7">
@@ -189,7 +187,7 @@
                     <!-- 标签 -->
                     <TagListCard></TagListCard>
                 </div>
-
+                
                 <!-- 文章目录 -->
                 <Toc></Toc>
 
@@ -213,7 +211,7 @@ import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.v
 import Toc from '@/layouts/frontend/components/Toc.vue'
 import { getArticleDetail } from '@/api/frontend/article'
 import { useRoute, useRouter } from 'vue-router'
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/tokyo-night-dark.css'
 import { initTooltips } from 'flowbite'
@@ -242,6 +240,42 @@ function refreshArticleDetail(articleId) {
         }
 
         article.value = res.data
+
+        nextTick(() => {
+            // 获取所有 pre code 节点
+            let highlight = document.querySelectorAll('pre code')
+            // 循环高亮
+            highlight.forEach((block) => {
+                hljs.highlightElement(block)
+            })
+
+            // 获取所有的 pre 节点
+            let preElements = document.querySelectorAll('pre')
+            preElements.forEach(preElement => {
+                // 找到第一个 code 元素
+                let firstCode = preElement.querySelector('code');
+                if (firstCode) {
+                    let copyCodeBtn = '<button class="hidden copy-code-btn flex items-center justify-center"><div class="copy-icon"></div></button>'
+                    firstCode.insertAdjacentHTML('beforebegin', copyCodeBtn);
+
+                    // 获取刚插入的按钮
+                    let copyBtn = firstCode.previousSibling;
+                    copyBtn.addEventListener('click', () => {
+                        // 添加 copied 样式
+                        copyBtn.classList.add('copied');
+                        copyToClipboard(preElement.textContent)
+                        // 1.5 秒后移除 copied 样式
+                        setTimeout(() => {
+                            copyBtn.classList.remove('copied');
+                        }, 1500);
+                    });
+                }
+
+                // 添加事件监听器
+                preElement.addEventListener('mouseenter', handleMouseEnter);
+                preElement.addEventListener('mouseleave', handleMouseLeave);
+            })
+        })
     })
 }
 refreshArticleDetail(route.params.articleId)
@@ -264,38 +298,42 @@ watch(route, (newRoute, oldRoute) => {
     refreshArticleDetail(newRoute.params.articleId)
 })
 
-const articleContentRef = ref(null)
-onMounted(() => {
-    // 使用 MutationObserver 监视 DOM 的变化
-    const observer = new MutationObserver(mutationsList => {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                // 获取所有 pre code 节点
-                let highlight = document.querySelectorAll('pre code')
-                // 循环高亮
-                highlight.forEach((block) => {
-                    hljs.highlightElement(block)
-                })
-            }
-        }
-    })
+// 复制内容到剪切板
+function copyToClipboard(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+}
 
-    // 配置监视子节点的变化
-    const config = { childList: true, subtree: true }
-    // 开始观察内容变化
-    observer.observe(articleContentRef.value, config)
-})
+const handleMouseEnter = (event) => {
+    // 鼠标移入，显示按钮
+    let copyBtn = event.target.querySelector('button');
+    if (copyBtn) {
+        copyBtn.classList.remove('hidden');
+        copyBtn.classList.add('block');
+    }
+}
 
+const handleMouseLeave = (event) => {
+    // 鼠标移出，隐藏按钮
+    let copyBtn = event.target.querySelector('button');
+    if (copyBtn) {
+        copyBtn.classList.add('hidden');
+    }
+}
 </script>
 
 <style scoped>
 /* h1, h2, h3, h4, h5, h6 标题样式 */
 ::v-deep(.article-content h1,
-    .article-content h2,
-    .article-content h3,
-    .article-content h4,
-    .article-content h5,
-    .article-content h6) {
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6) {
     color: #292525;
     line-height: 150%;
     font-family: PingFang SC, Helvetica Neue, Helvetica, Hiragino Sans GB, Microsoft YaHei, "\5FAE\8F6F\96C5\9ED1", Arial, sans-serif;
@@ -400,7 +438,7 @@ onMounted(() => {
 }
 
 ::v-deep(.article-content ul li p) {
-    margin-bottom: 0 !important;
+    margin-bottom: 0!important;
 }
 
 ::v-deep(.article-content ul ul li) {
@@ -423,7 +461,7 @@ onMounted(() => {
 }
 
 ::v-deep(.article-content img:hover,
-    img:focus) {
+img:focus) {
     box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, .15);
 }
 
@@ -451,16 +489,23 @@ onMounted(() => {
     font-family: Operator Mono, Consolas, Monaco, Menlo, monospace;
 }
 
+::v-deep(code) {
+    font-size: 98%;
+}
+
 /* pre 样式 */
 ::v-deep(pre) {
     margin-bottom: 20px;
+    padding-top: 30px;
+    background: #21252b;
+    border-radius: 6px;
+    position: relative;
 }
 
 ::v-deep(pre code.hljs) {
-    padding-top: 2rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
 }
 
 ::v-deep(pre:before) {
@@ -469,7 +514,7 @@ onMounted(() => {
     box-shadow: 20px 0 #fdbc40, 40px 0 #35cd4b;
     content: ' ';
     height: 10px;
-    margin-top: 10px;
+    margin-top: -19px;
     margin-left: 10px;
     position: absolute;
     width: 10px;
@@ -503,5 +548,72 @@ onMounted(() => {
 /* hr 横线 */
 ::v-deep(hr) {
     margin-bottom: 20px;
+}
+
+::v-deep(.copy-code-btn) {
+    border-width: 0;
+    cursor: pointer;
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    z-index: 5;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border-radius: 0.5rem;
+    opacity: 0;
+    transition: opacity .4s;
+    opacity: 1
+}
+
+::v-deep(.copy-code-btn:hover) {
+    background: #2f3542;
+}
+
+::v-deep(.copy-icon) {
+    --copy-icon: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' height='20' width='20' stroke='rgba(128,128,128,1)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2'/%3E%3C/svg%3E");
+    background: currentcolor;
+    -webkit-mask-image: var(--copy-icon);
+    mask-image: var(--copy-icon);
+    -webkit-mask-position: 50%;
+    mask-position: 50%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 1em;
+    mask-size: 1em;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0.625rem;
+    color: #9e9e9e;
+    font-size: 1.25rem;
+}
+
+::v-deep(.copied) {
+    display: flex;
+    background: #2f3542;
+}
+
+::v-deep(.copied:after) {
+    content: "已复制";
+    position: absolute;
+    top: 0;
+    right: calc(100% + .25rem);
+    display: block;
+    height: 2.5rem;
+    padding: .625rem;
+    border-radius: .5rem;
+    background: #2f3542;
+    color: #9e9e9e;
+    font-weight: 500;
+    line-height: 1.25rem;
+    white-space: nowrap;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB, Microsoft Yahei, Arial, sans-serif;
+}
+
+::v-deep(.copied .copy-icon) {
+    --copied-icon: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' height='20' width='20' stroke='rgba(128,128,128,1)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4'/%3E%3C/svg%3E");
+    -webkit-mask-image: var(--copied-icon);
+    mask-image: var(--copied-icon);
 }
 </style>
