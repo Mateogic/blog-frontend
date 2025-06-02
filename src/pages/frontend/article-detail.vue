@@ -13,21 +13,22 @@
                     # {{ tag.name }}
                 </span>
             </div>
-            
+
             <!-- 文章标题 -->
             <h1 class="font-bold text-4xl md:text-5xl mb-8">{{ article.title }}</h1>
 
             <!-- Meta 信息 -->
             <div class="flex gap-3 md:gap-6 text-gray-400 items-center text-sm">
                 <!-- 字数 -->
-                <div class="flex items-center" data-tooltip-target="word-tooltip-bottom" data-tooltip-placement="bottom">
+                <div class="flex items-center" data-tooltip-target="word-tooltip-bottom"
+                    data-tooltip-placement="bottom">
                     <svg t="1701512226243" class="w-4 h-4 mr-1 icon" viewBox="0 0 1024 1024" version="1.1"
                         xmlns="http://www.w3.org/2000/svg" p-id="28617" width="48" height="48">
                         <path
                             d="M682.666667 85.333333l213.333333 213.333334v597.674666a42.368 42.368 0 0 1-42.368 42.325334H170.368A42.666667 42.666667 0 0 1 128 896.341333V127.658667C128 104.277333 146.986667 85.333333 170.368 85.333333H682.666667z m-85.333334 256v212.864L512 469.333333l-84.906667 85.333334L426.666667 341.333333H341.333333v341.333334h85.333334l85.333333-85.333334 85.333333 85.333334h85.333334V341.333333h-85.333334z"
                             p-id="28618" fill="#8a8a8a"></path>
                     </svg>
-                    666
+                    {{ article.totalWords }}
                 </div>
                 <!-- 文章字数 Tooltip -->
                 <div id="word-tooltip-bottom" role="tooltip"
@@ -46,7 +47,7 @@
                                 d="M513 33.22c-265.1 0-480 214.9-480 480s214.9 480 480 480 480-214.9 480-480-214.9-480-480-480z m208.9 652.59c-11.05 19.13-35.51 25.69-54.64 14.64L474.1 588.93c-13.06-7.54-20.26-21.34-19.99-35.42 0-0.17-0.01-0.34-0.01-0.51V329.95c0-22.09 17.91-40 40-40s40 17.91 40 40v201.23l173.17 99.98c19.12 11.05 25.68 35.51 14.63 54.65z"
                                 fill="#8a8a8a" p-id="37813"></path>
                         </svg>
-                       约2分钟
+                        {{ article.readTime }}
                     </div>
                     <!-- 阅读时长 Tooltip -->
                     <div id="read-time-tooltip-bottom" role="tooltip"
@@ -129,7 +130,8 @@
                     <!-- 文章 -->
                     <article>
                         <!-- 正文 -->
-                        <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content"></div>
+                        <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content">
+                        </div>
 
                         <!-- 上下篇 -->
                         <nav class="flex flex-row mt-7">
@@ -187,7 +189,7 @@
                     <!-- 标签 -->
                     <TagListCard></TagListCard>
                 </div>
-                
+
                 <!-- 文章目录 -->
                 <Toc></Toc>
 
@@ -289,11 +291,11 @@ onMounted(() => {
 <style scoped>
 /* h1, h2, h3, h4, h5, h6 标题样式 */
 ::v-deep(.article-content h1,
-.article-content h2,
-.article-content h3,
-.article-content h4,
-.article-content h5,
-.article-content h6) {
+    .article-content h2,
+    .article-content h3,
+    .article-content h4,
+    .article-content h5,
+    .article-content h6) {
     color: #292525;
     line-height: 150%;
     font-family: PingFang SC, Helvetica Neue, Helvetica, Hiragino Sans GB, Microsoft YaHei, "\5FAE\8F6F\96C5\9ED1", Arial, sans-serif;
@@ -398,7 +400,7 @@ onMounted(() => {
 }
 
 ::v-deep(.article-content ul li p) {
-    margin-bottom: 0!important;
+    margin-bottom: 0 !important;
 }
 
 ::v-deep(.article-content ul ul li) {
@@ -421,7 +423,7 @@ onMounted(() => {
 }
 
 ::v-deep(.article-content img:hover,
-img:focus) {
+    img:focus) {
     box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, .15);
 }
 
