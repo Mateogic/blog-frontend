@@ -22,7 +22,7 @@
                     </svg>
                     <div class="ml-5">
                         <h2 class="mb-1">文章</h2>
-                        <CountTo :value="articleTotalCount"></CountTo>
+                        <CountTo :value="articleTotalCount" customClass="font-bold text-2xl"></CountTo>
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                     </svg>
                     <div class="ml-5">
                         <h2 class="mb-1">分类</h2>
-                        <CountTo :value="categoryTotalCount"></CountTo>
+                        <CountTo :value="categoryTotalCount" customClass="font-bold text-2xl"></CountTo>
                     </div>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                     </svg>
                     <div class="ml-5">
                         <h2 class="mb-1">标签</h2>
-                        <CountTo :value="tagTotalCount"></CountTo>
+                        <CountTo :value="tagTotalCount" customClass="font-bold text-2xl"></CountTo>
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@
                 </svg>
                 <div class="ml-5">
                     <h2 class="mb-1">总浏览量</h2>
-                    <CountTo :value="pvTotalCount"></CountTo>
+                    <CountTo :value="pvTotalCount" customClass="font-bold text-2xl"></CountTo>
                 </div>
             </div>
         </div>
