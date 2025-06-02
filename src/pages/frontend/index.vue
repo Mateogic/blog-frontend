@@ -9,8 +9,8 @@
             <div class="col-span-4 md:col-span-3 mb-3">
                 <!-- 文章列表，grid 表格布局，分为 2 列 -->
                 <div class="grid grid-cols-2 gap-4">
-                    <div v-for="(article, index) in articles" :key="index" class="col-span-2 md:col-span-1">
-                        <div class="bg-white h-full border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                    <div v-for="(article, index) in articles" :key="index" class="col-span-2 md:col-span-1 animate__animated animate__fadeInUp">
+                         <div class="bg-white hover:scale-[1.03] h-full border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
                             <!-- 文章封面 -->
                             <a @click="goArticleDetailPage(article.id)" class="cursor-pointer">
                                 <img class="rounded-t-lg h-48 w-full"
@@ -27,7 +27,8 @@
                                 <!-- 文章标题 -->
                                 <a @click="goArticleDetailPage(article.id)" class="cursor-pointer">
                                     <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                        {{ article.title }}</h2>
+                                        <span class="hover:border-gray-600 hover:border-b-2">{{ article.title }}</span>
+                                    </h2>
                                 </a>
                                 <!-- 文章摘要 -->
                                 <p v-if="article.summary" class="mb-3 font-normal text-gray-500 dark:text-gray-400">{{ article.summary }}</p>
@@ -102,7 +103,7 @@
 
 
             <!-- 右边侧边栏，占用一列 -->
-            <aside class="col-span-4 md:col-span-1">
+            <aside class="col-span-4 md:col-span-1 animate__animated animate__fadeInUp">
                 <div class="sticky top-[5.5rem]">
                     <!-- 博主信息 -->
                     <UserInfoCard></UserInfoCard>
