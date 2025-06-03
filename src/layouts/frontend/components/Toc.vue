@@ -16,7 +16,7 @@
             </svg>
             文章目录
         </h2>
-        <div class="border-l-2 border-gray-200">
+        <div class="toc-wrapper" :class="[isDark ? 'dark' : '']">
 			<ul class="toc">
                 <!-- 二级标题 -->
                 <li v-for="(h2, index) in titles" :key="index">
@@ -35,6 +35,10 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useDark } from '@vueuse/core'
+
+// 是否是暗黑模式
+const isDark = useDark()
 
 // 响应式的目录数据
 const titles = ref([])
@@ -48,6 +52,9 @@ onMounted(() => {
             if (mutation.type === 'childList') {
                 // 先清空目录缓存数据
                 titles.value = []
+                // 计算目录数据
+                initTocData(container)
+
                 // 监听所有图片的加载事件
                 const images = container.querySelectorAll('img');
                 images.forEach(img => {
@@ -111,8 +118,6 @@ function initTocData(container) {
     let levels = ['h2', 'h3']
     let headings = container.querySelectorAll(levels)
 
-    console.log(headings)
-
     // 存放组装后的目录标题数据
     let titlesArr = []
 
@@ -153,3 +158,49 @@ function initTocData(container) {
     titles.value = titlesArr
 }
 </script>
+
+<style scoped>
+::v-deep(.toc-wrapper) {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 75vh;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+}
+
+::v-deep(.toc:before) {
+    content: " ";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    width: 2px;
+    background: #eaecef;
+}
+
+::v-deep(.dark .toc:before) {
+    content: " ";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    width: 2px;
+    background: #30363d;
+}
+
+::v-deep(.dark .toc li span) {
+    color: #9e9e9e;
+}
+
+::v-deep(.dark .toc li .active) {
+    color: rgb(2 132 199 / 1);
+}
+
+::v-deep(.dark .toc li span:hover) {
+    color: rgb(2 132 199 / 1);
+}
+</style>
