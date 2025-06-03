@@ -53,7 +53,7 @@ const router = useRouter()
 // 所有标签
 const tags = ref([])
 // 一次显示的标签数
-const size = ref(20)
+const size = ref(10)
 getTagList({ size: size.value }).then((res) => {
     if (res.success) {
         tags.value = res.data
