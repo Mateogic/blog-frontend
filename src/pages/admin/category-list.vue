@@ -29,21 +29,23 @@
                     新增</el-button>
             </div>
 
-            <!-- 分页列表 -->
+			<!-- 分页列表 -->
             <el-table :data="tableData" border stripe style="width: 100%" v-loading="tableLoading">
                 <el-table-column prop="name" label="分类名称" width="180" />
+                <el-table-column prop="articlesTotal" label="文章数" width="100" />
                 <el-table-column prop="createTime" label="创建时间" width="180" />
-                <el-table-column label="操作">
+                <el-table-column label="操作" >
                     <template #default="scope">
-                        <el-button type="danger" size="small" @click="deleteCategorySubmit(scope.row)">
-                            <el-icon class="mr-1">
-                                <Delete />
-                            </el-icon>
-                            删除
-                        </el-button>
-                    </template>
+                    <el-button type="danger" size="small" @click="deleteCategorySubmit(scope.row)">
+                        <el-icon class="mr-1">
+                            <Delete />
+                        </el-icon>
+                        删除
+                    </el-button>
+                </template>
                 </el-table-column>
             </el-table>
+
 
             <!-- 分页 -->
             <div class="mt-10 flex justify-center">
