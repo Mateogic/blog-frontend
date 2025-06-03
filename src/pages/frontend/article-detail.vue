@@ -223,15 +223,75 @@ import { useDark } from '@vueuse/core'
 // 是否是暗黑模式
 const isDark = useDark()
 
-// 初始化 Flowbit 组件
-onMounted(() => {
+// 配置和加载 MathJax
+const loadMathJax = () => {
+    // 如果 MathJax 已经存在，直接返回
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+        // 设置 MathJax 配置 - 必须在脚本加载前设置
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                tags: 'ams'
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            startup: {
+                ready: () => {
+                    window.MathJax.startup.defaultReady();
+                    window.MathJax.startup.promise.then(resolve).catch(reject);
+                }
+            }
+        };
+
+        // 动态加载 MathJax
+        if (!document.querySelector('script[src*="mathjax"]')) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+            script.async = true;
+            script.onerror = () => {
+                reject(new Error('MathJax 脚本加载失败'));
+            };
+            document.head.appendChild(script);
+        } else {
+            // 如果脚本已存在，等待 MathJax 启动完成
+            if (window.MathJax && window.MathJax.startup) {
+                window.MathJax.startup.promise.then(resolve).catch(reject);
+            } else {
+                setTimeout(() => {
+                    if (window.MathJax && window.MathJax.startup) {
+                        window.MathJax.startup.promise.then(resolve).catch(reject);
+                    } else {
+                        reject(new Error('MathJax 启动超时'));
+                    }
+                }, 3000);
+            }
+        }
+    });
+}
+
+// 初始化 Flowbit 组件和 MathJax
+onMounted(async () => {
     initTooltips();
+    try {
+        await loadMathJax();
+    } catch (error) {
+        console.error('MathJax 加载失败:', error);
+    }
 })
 
 const route = useRoute()
 const router = useRouter()
-// 路由传递过来的文章 ID
-console.log(route.params.articleId)
+// 文章内容容器引用
+const articleContentRef = ref(null)
 
 // 文章数据
 const article = ref({})
@@ -246,8 +306,8 @@ function refreshArticleDetail(articleId) {
             return
         }
 
-        article.value = res.data
-
+        article.value = res.data;
+        
         nextTick(() => {
             // 获取所有 pre code 节点
             let highlight = document.querySelectorAll('pre code')
@@ -280,10 +340,40 @@ function refreshArticleDetail(articleId) {
 
                 // 添加事件监听器
                 preElement.addEventListener('mouseenter', handleMouseEnter);
-                preElement.addEventListener('mouseleave', handleMouseLeave);
-            })
+                preElement.addEventListener('mouseleave', handleMouseLeave);            })
+            
+            // 渲染 MathJax 数学公式
+            renderMathJax();
         })
     })
+}
+
+// 单独的 MathJax 渲染函数
+const renderMathJax = async () => {
+    try {
+        // 等待 MathJax 完全加载
+        let retries = 0;
+        const maxRetries = 10;
+        
+        while ((!window.MathJax || !window.MathJax.typesetPromise) && retries < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            retries++;
+        }
+        
+        if (!window.MathJax || !window.MathJax.typesetPromise) {
+            console.error('MathJax 未正确加载，无法渲染数学公式');
+            return;
+        }
+        
+        // 如果 articleContentRef 存在，只渲染文章内容区域
+        if (articleContentRef.value) {
+            await window.MathJax.typesetPromise([articleContentRef.value]);
+        } else {
+            await window.MathJax.typesetPromise();
+        }
+    } catch (error) {
+        console.error('MathJax 渲染错误:', error);
+    }
 }
 refreshArticleDetail(route.params.articleId)
 
@@ -705,8 +795,84 @@ img:focus) {
 }
 
 ::v-deep(.copied .copy-icon) {
-    --copied-icon: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' height='20' width='20' stroke='rgba(128,128,128,1)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4'/%3E%3C/svg%3E");
+    --copied-icon: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' height='20' width='20' stroke='rgba(128,128,128,1)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 12l2 2 4-4'/%3E%3C/svg%3E");
     -webkit-mask-image: var(--copied-icon);
     mask-image: var(--copied-icon);
+}
+
+/* MathJax 数学公式样式 */
+::v-deep(.article-content .MathJax) {
+    display: inline-block;
+    font-style: normal;
+    font-weight: normal;
+    line-height: normal;
+    text-indent: 0;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+    word-spacing: normal;
+    overflow-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    max-width: none;
+    max-height: none;
+    min-width: 0;
+    min-height: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* MathJax 块级公式样式 */
+::v-deep(.article-content .MathJax_Display) {
+    text-align: center;
+    margin: 1em 0;
+    display: block;
+}
+
+/* 深色模式下的 MathJax 样式 */
+::v-deep(.dark .article-content .MathJax) {
+    color: #e2e8f0;
+}
+
+/* MathJax 行内公式容器 */
+::v-deep(.article-content mjx-container[jax="CHTML"][display="true"]) {
+    display: block;
+    text-align: center;
+    margin: 1em 0;
+}
+
+::v-deep(.article-content mjx-container[jax="CHTML"]) {
+    display: inline-block;
+    line-height: 0;
+}
+
+/* MathJax 数学公式样式 */
+::v-deep(.article-content .MathJax) {
+    margin: 0.5em 0;
+}
+
+::v-deep(.article-content .MathJax_Display) {
+    margin: 1em 0;
+    text-align: center;
+}
+
+::v-deep(.article-content mjx-container[jax="CHTML"][display="true"]) {
+    display: block;
+    text-align: center;
+    margin: 1em 0;
+}
+
+::v-deep(.article-content mjx-container[jax="CHTML"]) {
+    display: inline-block;
+}
+
+/* MathJax 深色模式样式 */
+::v-deep(.dark .article-content .MathJax) {
+    color: #e2e8f0;
+}
+
+::v-deep(.dark .article-content mjx-math) {
+    color: #e2e8f0;
 }
 </style>
