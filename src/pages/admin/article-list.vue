@@ -38,6 +38,17 @@
                         <el-image style="width: 100px;" :src="scope.row.cover" />
                     </template>
                 </el-table-column>
+                <el-table-column prop="isTop" label="是否置顶" width="100">
+                    <template #default="scope">
+                        <el-switch
+                            @change="handleIsTopChange(scope.row)"
+                            v-model="scope.row.isTop"
+                            inline-prompt
+                            :active-icon="Check"
+                            :inactive-icon="Close"
+                        />
+                    </template>
+                </el-table-column>
                 <el-table-column prop="createTime" label="发布时间" width="180" />
                 <el-table-column label="操作">
                     <template #default="scope">
@@ -204,7 +215,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { Search, RefreshRight } from '@element-plus/icons-vue'
-import { getArticlePageList, deleteArticle, publishArticle, getArticleDetail, updateArticle } from '@/api/admin/article'
+import { getArticlePageList, deleteArticle, publishArticle, getArticleDetail, updateArticle, updateArticleIsTop } from '@/api/admin/article'
 import { uploadFile } from '@/api/admin/file'
 import { getCategorySelectList } from '@/api/admin/category'
 import { searchTags, getTagSelectList } from '@/api/admin/tag'
@@ -213,6 +224,7 @@ import { showMessage, showModel } from '@/composables/util'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
 
 // 模糊搜索的文章标题
@@ -551,6 +563,23 @@ const updateSubmit = () => {
 // 跳转文章详情页
 const goArticleDetailPage = (articleId) => {
     router.push('/article/' + articleId)
+}
+// 点击置顶事件
+const handleIsTopChange = (row) => {
+    updateArticleIsTop({id: row.id, isTop: row.isTop}).then((res) => {
+        // 重新请求分页接口，渲染列表数据
+        getTableData()
+
+        if (res.success == false) {
+            // 获取服务端返回的错误消息
+            let message = res.message
+            // 提示错误消息
+            showMessage(message, 'error')
+            return
+        }
+
+        showMessage(row.isTop ? '置顶成功' : "已取消置顶")
+    })
 }
 </script>
 
