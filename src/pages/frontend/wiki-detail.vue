@@ -15,11 +15,10 @@
                         data-active-classes="bg-white dark:bg-[#0d1117] dark:text-gray-300" data-inactive-classes=""
                         class="last:pb-[170px]">
                         <div v-for="(catalog, index) in catalogs" :key="index">
-                            <h2 :id="'accordion-flush-heading-' + catalog.id">
-                                <button type="button" class="hover:bg-gray-100 flex items-center justify-between w-full py-3 px-3 rounded-lg 
+                            <h2 :id="'accordion-flush-heading-' + catalog.id">                                <button type="button" class="hover:bg-gray-100 flex items-center justify-between w-full py-3 px-3 rounded-lg 
                             font-medium rtl:text-right text-gray-600 dark:text-gray-400 gap-3 dark:hover:bg-gray-800"
                                     :data-accordion-target="'#accordion-flush-body-' + catalog.id"
-                                    :aria-expanded="[catalog.children.some(item => item.articleId == route.query.articleId) ? true : false]"
+                                    :aria-expanded="[catalog.children && catalog.children.some(item => item.articleId == route.query.articleId) ? true : false]"
                                     :aria-controls="'accordion-flush-body-' + catalog.id">
                                     <!-- 一级目录标题 -->
                                     <span class="flex items-center" v-html="catalog.title"></span>
@@ -31,12 +30,11 @@
                                             stroke-width="2" d="M9 5 5 1 1 5" />
                                     </svg>
                                 </button>
-                            </h2>
-                            <!-- 二级目录 -->
+                            </h2>                            <!-- 二级目录 -->
                             <ul :id="'accordion-flush-body-' + catalog.id" class="hidden"
                                 :aria-labelledby="'accordion-flush-heading-' + catalog.id">
                                 <!-- 二级目录标题 -->
-                                <li v-for="(childCatalog, index2) in catalog.children" :key="index2" class="flex items-center ps-10 py-2 pe-3 rounded-lg cursor-pointer 
+                                <li v-for="(childCatalog, index2) in (catalog.children || [])" :key="index2" class="flex items-center ps-10 py-2 pe-3 rounded-lg cursor-pointer 
                                     dark:text-gray-400"
                                     :class="[childCatalog.articleId == route.query.articleId ? 'bg-sky-50 text-sky-600 dark:bg-sky-950 dark:text-sky-500' : 'hover:bg-gray-100 dark:hover:bg-gray-800']"
                                     @click="goWikiArticleDetailPage(childCatalog.articleId)" v-html="childCatalog.title">
