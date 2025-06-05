@@ -18,6 +18,8 @@ import NotFound from '@/pages/frontend/404.vue'
 import AdminWikiList from '@/pages/admin/wiki-list.vue'
 import WikiList from '@/pages/frontend/wiki-list.vue'
 import WikiDetail from '@/pages/frontend/wiki-detail.vue'
+import AdminCommentList from '@/pages/admin/comment-list.vue'
+
 // 统一在这里声明所有路由
 const routes = [
     {
@@ -143,6 +145,13 @@ const routes = [
                 component: AdminWikiList,
                 meta: {
                     title: '知识库管理'
+                }
+            },
+            {
+                path: "/admin/comment/list",
+                component: AdminCommentList,
+                meta: {
+                    title: '评论管理'
                 }
             },
         ]
