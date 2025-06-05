@@ -63,9 +63,14 @@ const menus = [
         'path': '/admin/tag/list',
     },
     {
+        'name': '知识库管理',
+        'icon': 'Collection',
+        'path': '/admin/wiki/list',
+    },
+    {
         'name': '博客设置',
         'icon': 'Setting',
-        'path': '/admin/blog/setting',
+        'path': '/admin/blog/settings',
     },
 ]
 </script>
