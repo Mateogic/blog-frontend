@@ -127,15 +127,10 @@
                 <div
                     class="w-full p-5 mb-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
                     <!-- 文章 -->
-                    <article>                        <!-- 正文 -->
+                    <article>
+                        <!-- 正文 -->
                         <div :class="{ 'dark': isDark }">
                             <div ref="articleContentRef" class="mt-5 article-content" v-viewer v-html="article.content"></div>
-                        </div>
-
-                        <!-- 最后编辑时间 -->
-                        <div class="flex items-center text-gray-500 text-sm" v-if="article.updateTime">
-                            <svg t="1705985882454" class="icon inline-block w-4 h-4 mr-1 mt-5 mb-5" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7701" width="200" height="200"><path d="M200.405333 912.938667a90.965333 90.965333 0 0 1-89.6-93.866667v-614.4a93.866667 93.866667 0 0 1 89.6-93.866667h473.6a91.050667 91.050667 0 0 1 89.6 93.866667v183.466667a33.621333 33.621333 0 0 1-34.133333 34.133333 31.402667 31.402667 0 0 1-34.133333-34.133333v-183.466667a28.586667 28.586667 0 0 0-25.6-29.866667h-473.6c-17.066667 0-25.6 12.8-25.6 29.866667v614.4a28.373333 28.373333 0 0 0 25.6 29.866667h256a33.493333 33.493333 0 0 1 34.133333 34.133333 26.794667 26.794667 0 0 1-29.866667 29.866667z m354.133334-4.266667a47.872 47.872 0 0 1-34.133334-12.8 41.130667 41.130667 0 0 1-12.8-42.666667l12.8-102.4 234.666667-234.666666a51.584 51.584 0 0 1 68.266667 0l76.8 76.8a51.584 51.584 0 0 1 0 68.266666l-234.666667 234.666667-102.4 12.8z m29.866666-128l-8.533333 64 64-8.533333 209.066667-209.066667-55.466667-55.466667z m-341.333333-68.266667a33.664 33.664 0 0 1-34.133333-34.133333 31.36 31.36 0 0 1 34.133333-34.133333h187.733333a34.133333 34.133333 0 0 1 0 68.266666z m0-179.2a33.749333 33.749333 0 0 1-34.133333-34.133333 31.488 31.488 0 0 1 34.133333-34.133333h264.533333a34.133333 34.133333 0 0 1 0 68.266666z m0-179.2a33.536 33.536 0 0 1-34.133333-34.133333 31.488 31.488 0 0 1 34.133333-34.133333h384a34.133333 34.133333 0 1 1 0 68.266666z" p-id="7702" fill="#707070"></path></svg>
-                            最后编辑于 {{ article.updateTime }}
                         </div>
 
                         <!-- 上下篇 -->
@@ -180,6 +175,9 @@
 
 
                 </div>
+
+                <!-- 评论组件 -->
+                <Comment></Comment>
             </div>
 
             <!-- 右边侧边栏，占用一列 -->
@@ -222,81 +220,22 @@ import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/tokyo-night-dark.css'
 import { initTooltips } from 'flowbite'
+import Comment from '@/components/Comment.vue'
 
 import { useDark } from '@vueuse/core'
 
 // 是否是暗黑模式
 const isDark = useDark()
 
-// 配置和加载 MathJax
-const loadMathJax = () => {
-    // 如果 MathJax 已经存在，直接返回
-    if (window.MathJax && window.MathJax.typesetPromise) {
-        return Promise.resolve();
-    }
-
-    return new Promise((resolve, reject) => {
-        // 设置 MathJax 配置 - 必须在脚本加载前设置
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true,
-                tags: 'ams'
-            },
-            options: {
-                ignoreHtmlClass: 'tex2jax_ignore',
-                processHtmlClass: 'tex2jax_process'
-            },
-            startup: {
-                ready: () => {
-                    window.MathJax.startup.defaultReady();
-                    window.MathJax.startup.promise.then(resolve).catch(reject);
-                }
-            }
-        };
-
-        // 动态加载 MathJax
-        if (!document.querySelector('script[src*="mathjax"]')) {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-            script.async = true;
-            script.onerror = () => {
-                reject(new Error('MathJax 脚本加载失败'));
-            };
-            document.head.appendChild(script);
-        } else {
-            // 如果脚本已存在，等待 MathJax 启动完成
-            if (window.MathJax && window.MathJax.startup) {
-                window.MathJax.startup.promise.then(resolve).catch(reject);
-            } else {
-                setTimeout(() => {
-                    if (window.MathJax && window.MathJax.startup) {
-                        window.MathJax.startup.promise.then(resolve).catch(reject);
-                    } else {
-                        reject(new Error('MathJax 启动超时'));
-                    }
-                }, 3000);
-            }
-        }
-    });
-}
-
-// 初始化 Flowbit 组件和 MathJax
-onMounted(async () => {
+// 初始化 Flowbit 组件
+onMounted(() => {
     initTooltips();
-    try {
-        await loadMathJax();
-    } catch (error) {
-        console.error('MathJax 加载失败:', error);
-    }
 })
 
 const route = useRoute()
 const router = useRouter()
-// 文章内容容器引用
-const articleContentRef = ref(null)
+// 路由传递过来的文章 ID
+console.log(route.params.articleId)
 
 // 文章数据
 const article = ref({})
@@ -311,8 +250,8 @@ function refreshArticleDetail(articleId) {
             return
         }
 
-        article.value = res.data;
-        
+        article.value = res.data
+
         nextTick(() => {
             // 获取所有 pre code 节点
             let highlight = document.querySelectorAll('pre code')
@@ -345,40 +284,10 @@ function refreshArticleDetail(articleId) {
 
                 // 添加事件监听器
                 preElement.addEventListener('mouseenter', handleMouseEnter);
-                preElement.addEventListener('mouseleave', handleMouseLeave);            })
-            
-            // 渲染 MathJax 数学公式
-            renderMathJax();
+                preElement.addEventListener('mouseleave', handleMouseLeave);
+            })
         })
     })
-}
-
-// 单独的 MathJax 渲染函数
-const renderMathJax = async () => {
-    try {
-        // 等待 MathJax 完全加载
-        let retries = 0;
-        const maxRetries = 10;
-        
-        while ((!window.MathJax || !window.MathJax.typesetPromise) && retries < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            retries++;
-        }
-        
-        if (!window.MathJax || !window.MathJax.typesetPromise) {
-            console.error('MathJax 未正确加载，无法渲染数学公式');
-            return;
-        }
-        
-        // 如果 articleContentRef 存在，只渲染文章内容区域
-        if (articleContentRef.value) {
-            await window.MathJax.typesetPromise([articleContentRef.value]);
-        } else {
-            await window.MathJax.typesetPromise();
-        }
-    } catch (error) {
-        console.error('MathJax 渲染错误:', error);
-    }
 }
 refreshArticleDetail(route.params.articleId)
 
@@ -800,84 +709,8 @@ img:focus) {
 }
 
 ::v-deep(.copied .copy-icon) {
-    --copied-icon: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' height='20' width='20' stroke='rgba(128,128,128,1)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 12l2 2 4-4'/%3E%3C/svg%3E");
+    --copied-icon: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' height='20' width='20' stroke='rgba(128,128,128,1)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4'/%3E%3C/svg%3E");
     -webkit-mask-image: var(--copied-icon);
     mask-image: var(--copied-icon);
-}
-
-/* MathJax 数学公式样式 */
-::v-deep(.article-content .MathJax) {
-    display: inline-block;
-    font-style: normal;
-    font-weight: normal;
-    line-height: normal;
-    text-indent: 0;
-    text-align: left;
-    text-transform: none;
-    letter-spacing: normal;
-    word-spacing: normal;
-    overflow-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-    max-width: none;
-    max-height: none;
-    min-width: 0;
-    min-height: 0;
-    border: 0;
-    padding: 0;
-    margin: 0;
-}
-
-/* MathJax 块级公式样式 */
-::v-deep(.article-content .MathJax_Display) {
-    text-align: center;
-    margin: 1em 0;
-    display: block;
-}
-
-/* 深色模式下的 MathJax 样式 */
-::v-deep(.dark .article-content .MathJax) {
-    color: #e2e8f0;
-}
-
-/* MathJax 行内公式容器 */
-::v-deep(.article-content mjx-container[jax="CHTML"][display="true"]) {
-    display: block;
-    text-align: center;
-    margin: 1em 0;
-}
-
-::v-deep(.article-content mjx-container[jax="CHTML"]) {
-    display: inline-block;
-    line-height: 0;
-}
-
-/* MathJax 数学公式样式 */
-::v-deep(.article-content .MathJax) {
-    margin: 0.5em 0;
-}
-
-::v-deep(.article-content .MathJax_Display) {
-    margin: 1em 0;
-    text-align: center;
-}
-
-::v-deep(.article-content mjx-container[jax="CHTML"][display="true"]) {
-    display: block;
-    text-align: center;
-    margin: 1em 0;
-}
-
-::v-deep(.article-content mjx-container[jax="CHTML"]) {
-    display: inline-block;
-}
-
-/* MathJax 深色模式样式 */
-::v-deep(.dark .article-content .MathJax) {
-    color: #e2e8f0;
-}
-
-::v-deep(.dark .article-content mjx-math) {
-    color: #e2e8f0;
 }
 </style>

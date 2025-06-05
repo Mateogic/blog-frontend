@@ -214,6 +214,8 @@
                             </div>
                         </nav>
                     </article>
+                    <!-- 评论组件 -->
+                    <Comment customeCss=""></Comment>
                 </div>
             </div>
             <!-- 右边栏 -->
@@ -245,7 +247,7 @@ import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.v
 import {
     initAccordions,
 } from 'flowbite'
-
+import Comment from '@/components/Comment.vue'
 // 配置和加载 MathJax
 const loadMathJax = () => {
     // 如果 MathJax 已经存在，直接返回
